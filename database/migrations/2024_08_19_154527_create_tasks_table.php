@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('description');
-            $table->timestamp('due_date');
-            $table->tinyInteger('priority');
+            $table->text('description')->nullable();
+            $table->timestamp('due_date')->nullable();
+            $table->enum('priority',['high', 'medium', 'low']);
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users');
             $table->unsignedBigInteger('status_id');
             $table->foreign('status_id')->references('id')->on('task_statuses');
             $table->timestamps();
