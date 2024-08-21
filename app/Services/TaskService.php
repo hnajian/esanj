@@ -3,6 +3,7 @@
 namespace App\Services;
 use App\DTOs\TaskDTO;
 use App\Enums\Priority;
+use App\Events\CriticalTaskCreated;
 use App\Events\TaskCreated;
 use App\Http\Requests\StoreTaskRequest;
 use App\Models\Task;
@@ -22,6 +23,10 @@ class TaskService
         $task->save();
 
         TaskCreated::dispatch($task);
+        
+        if($task->priority = Priority::HIGH){
+            broadcast(new CriticalTaskCreated($task))->toOthers();
+        }
 
         return $task;
     }

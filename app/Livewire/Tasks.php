@@ -18,37 +18,40 @@ class Tasks extends Component
     public $priority = 'low';
     public $status_id = 1;
 
-
-    protected TaskService $service;
-
-
+    protected TaskService $service; 
 
     public function boot(TaskService $service){
         $this->service = $service;
-        $this->tasks = Task::latest()->get();
+        $this->tasks = auth()->user()->tasks()->latest()->get();
     }
 
     
     public function getListeners()
     {
         $userId = auth()->user()->id;
-       return [
-        "echo-private:user.{$userId},TaskCreated" => 'refresh',
+        return [
+            "echo-private:user.{$userId},TaskCreated" => 'refresh',
+            'echo:tasks,CriticalTaskCreated' => 'showNotif',
+            'echo:tasks,TaskComplited' => 'showNotif',
         ];
     }
 
-    public function refresh($e){
-        $this->tasks = Task::latest()->get();
+    public function refresh(){
+        $this->tasks = auth()->user()->tasks()->latest()->get();
     }
 
+    public function showNotif($event){
+
+        Session::flash('message', $event['message']); 
+    }
     
 
     public function create(){
 
         $taskDTO = $this->taskDTO();
         $this->service->storeTask($taskDTO);
-        $this->tasks = Task::latest()->get();
-        $this->reset('title');
+        $this->tasks = auth()->user()->tasks()->latest()->get();
+        $this->reset(['title', 'description', 'priority', 'status_id']);
 
     }
 
