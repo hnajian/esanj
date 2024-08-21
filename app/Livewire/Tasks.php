@@ -20,12 +20,27 @@ class Tasks extends Component
 
 
     protected TaskService $service;
- 
+
+
 
     public function boot(TaskService $service){
         $this->service = $service;
         $this->tasks = Task::latest()->get();
     }
+
+    
+    public function getListeners()
+    {
+        $userId = auth()->user()->id;
+       return [
+        "echo-private:user.{$userId},TaskCreated" => 'refresh',
+        ];
+    }
+
+    public function refresh($e){
+        $this->tasks = Task::latest()->get();
+    }
+
     
 
     public function create(){

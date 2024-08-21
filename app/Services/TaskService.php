@@ -21,6 +21,7 @@ class TaskService
         $task->user_id = $dto->user_id;
         $task->save();
 
+        TaskCreated::dispatch($task);
 
         return $task;
     }
